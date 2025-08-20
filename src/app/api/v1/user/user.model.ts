@@ -1,21 +1,24 @@
 import { model, Schema } from "mongoose";
 import { UserStatus, IUser, Role, AgentStatus } from "./user.interface";
 
-export const agentInfoSchema = new Schema({
-  commissionRate: { type: Number , default: 1.5}, // in percentage
-  approvalStatus: {
-    type: String,
-    enum: Object.values(AgentStatus),
-    default: AgentStatus.PENDING,
+export const agentInfoSchema = new Schema(
+  {
+    commissionRate: { type: Number, default: 1.5 }, // in percentage
+    approvalStatus: {
+      type: String,
+      enum: Object.values(AgentStatus),
+      default: AgentStatus.PENDING,
+    },
   },
-});
+  { _id: false, versionKey: false }
+);
 
 const userSchema = new Schema<IUser>(
   {
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    phone: { type: String, required: true },
+    phone: { type: String, required: true, unique: true, maxLength: 14 },
     picture: { type: String },
     address: { type: String },
     userStatus: {
