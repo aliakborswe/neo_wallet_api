@@ -1,4 +1,4 @@
-import { Schema } from "mongoose";
+import { model, Schema } from "mongoose";
 import {
   ITransaction,
   TransactionStatus,
@@ -7,6 +7,10 @@ import {
 
 const transactionSchema = new Schema<ITransaction>(
   {
+    userID: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+    },
     transactionId: { type: String, unique: true, required: true },
     type: {
       type: String,
@@ -15,15 +19,13 @@ const transactionSchema = new Schema<ITransaction>(
     },
     amount: { type: Number, required: true }, // amount should be in paisa
     fee: { type: Number, default: 0 },
-    senderWalletId: {
+    senderId: {
       type: Schema.Types.ObjectId,
-      ref: "Wallet",
-      required: true,
+      ref: "User",
     },
-    receiverWalletId: {
+    receiverId: {
       type: Schema.Types.ObjectId,
-      ref: "Wallet",
-      required: true,
+      ref: "User",
     },
     description: { type: String, default: "" },
     status: {
@@ -36,4 +38,9 @@ const transactionSchema = new Schema<ITransaction>(
     timestamps: true,
     versionKey: false,
   }
+);
+
+export const Transaction = model<ITransaction>(
+  "Transaction",
+  transactionSchema
 );

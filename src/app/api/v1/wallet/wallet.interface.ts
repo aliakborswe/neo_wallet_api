@@ -6,10 +6,7 @@ export enum IsActive {
 }
 export interface IWallet {
     _id?: string;
-    walletId?: string;
     userId: Types.ObjectId;
     balance: number;
     isActive: IsActive;
-    accountNumber: string;
-    pin: string;
 }

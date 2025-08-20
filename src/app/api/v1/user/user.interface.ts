@@ -1,9 +1,15 @@
 import { Types } from "mongoose";
 
-export enum IsActive {
+export enum UserStatus {
   ACTIVE = "ACTIVE",
   SUSPEND = "SUSPEND",
   BLOCKED = "BLOCKED",
+}
+
+export enum AgentStatus {
+  PENDING = "PENDING",
+  APPROVED = "APPROVED",
+  SUSPEND = "SUSPEND",
 }
 
 export enum Role {
@@ -11,6 +17,11 @@ export enum Role {
   ADMIN = "ADMIN",
   AGENT = "AGENT",
   USER = "USER",
+}
+
+export interface IAgentInfo {
+  commissionRate: number; // in percentage
+  approvalStatus: AgentStatus;
 }
 
 export interface IUser {
@@ -21,8 +32,8 @@ export interface IUser {
   phone: string;
   picture?: string;
   address?: string;
-  isActive?: IsActive;
+  userStatus?: UserStatus;
   isVerified?: boolean;
   role: Role;
-  agentCommission?: number;
+  agentInfo?: IAgentInfo;
 }

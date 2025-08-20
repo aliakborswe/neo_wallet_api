@@ -1,5 +1,14 @@
 import { model, Schema } from "mongoose";
-import { IsActive, IUser, Role } from "./user.interface";
+import { UserStatus, IUser, Role, AgentStatus } from "./user.interface";
+
+export const agentInfoSchema = new Schema({
+  commissionRate: { type: Number, required: true }, // in percentage
+  approvalStatus: {
+    type: String,
+    enum: Object.values(AgentStatus),
+    default: AgentStatus.PENDING,
+  },
+});
 
 const userSchema = new Schema<IUser>(
   {
@@ -9,14 +18,17 @@ const userSchema = new Schema<IUser>(
     phone: { type: String, required: true },
     picture: { type: String },
     address: { type: String },
-    isActive: {
+    userStatus: {
       type: String,
-      enum: Object.values(IsActive),
-      default: IsActive.ACTIVE,
+      enum: Object.values(UserStatus),
+      default: UserStatus.ACTIVE,
     },
     isVerified: { type: Boolean, default: false },
     role: { type: String, enum: Object.values(Role), default: Role.USER },
-    agentCommission: { type: Number, default: 1.5 },
+    agentInfo: {
+      type: agentInfoSchema,
+      default: () => ({}), // Default to an empty object if no agentInfo is provided
+    },
   },
   {
     timestamps: true,

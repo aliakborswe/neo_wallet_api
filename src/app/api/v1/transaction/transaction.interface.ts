@@ -15,12 +15,13 @@ export enum TransactionStatus {
 
 export interface ITransaction {
   _id?: Types.ObjectId;
+  userID?: Types.ObjectId;
   transactionId?: string;
   type: TransactionType;
-  amount: number; 
-  fee?: number; 
-  senderWalletId: Types.ObjectId; 
-  receiverWalletId?: Types.ObjectId; 
-  description?: string; 
+  amount: number;
+  fee?: number;
+  senderId: Types.ObjectId;
+  receiverId?: Types.ObjectId;
+  description?: string;
   status?: TransactionStatus;
 }
