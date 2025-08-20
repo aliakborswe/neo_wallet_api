@@ -27,6 +27,10 @@ const transactionSchema = new Schema<ITransaction>(
       type: Schema.Types.ObjectId,
       ref: "User",
     },
+    agentId: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+    },
     description: { type: String, default: "" },
     status: {
       type: String,

@@ -2,7 +2,7 @@ import { model, Schema } from "mongoose";
 import { UserStatus, IUser, Role, AgentStatus } from "./user.interface";
 
 export const agentInfoSchema = new Schema({
-  commissionRate: { type: Number, required: true }, // in percentage
+  commissionRate: { type: Number , default: 1.5}, // in percentage
   approvalStatus: {
     type: String,
     enum: Object.values(AgentStatus),

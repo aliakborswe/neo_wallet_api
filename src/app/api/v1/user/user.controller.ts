@@ -1,11 +1,22 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
+import httpStatus from "http-status-codes";
+import { catchAsync } from "../../../utils/catchAsync";
+import { sendResponse } from "../../../utils/sendResponse";
+import { UserServices } from "./user.service";
 
-const user = (req: Request, res: Response) => {
-  res.status(200).json({
-    message: "Welcome to user",
-  });
-};
+const createUser = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const user = await UserServices.createUser(req.body);
 
-export const V1Controller = {
-  user,
+    sendResponse(res, {
+      statusCode: httpStatus.CREATED,
+      success: true,
+      message: "User created successfully",
+      data: user,
+    });
+  }
+);
+
+export const userController = {
+  createUser,
 };

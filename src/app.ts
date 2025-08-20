@@ -17,6 +17,11 @@ app.get("/", (req: Request, res: Response) => {
     message: "Welcome to NeoWallet",
   });
 });
+app.get("/health", (req: Request, res: Response) => {
+  res.status(200).json({
+    message: "NeoWallet is running healthy",
+  });
+});
 
 
 export default app;

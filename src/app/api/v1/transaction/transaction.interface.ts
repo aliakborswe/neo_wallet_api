@@ -22,6 +22,7 @@ export interface ITransaction {
   fee?: number;
   senderId: Types.ObjectId;
   receiverId?: Types.ObjectId;
+  agentId?: Types.ObjectId;
   description?: string;
   status?: TransactionStatus;
 }
