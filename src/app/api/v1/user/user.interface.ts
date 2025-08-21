@@ -20,8 +20,8 @@ export enum Role {
 }
 
 export interface IAgentInfo {
-  commissionRate: number; // in percentage
-  approvalStatus: AgentStatus;
+  commissionRate: number; 
+  approvalStatus: "PENDING" | "APPROVED" | "REJECTED";
 }
 
 export interface IUser {
@@ -36,5 +36,5 @@ export interface IUser {
   isVerified?: boolean;
   isDeleted?: string;
   role?: Role;
-  agentInfo?: IAgentInfo[];
+  agentInfo?: IAgentInfo;
 }

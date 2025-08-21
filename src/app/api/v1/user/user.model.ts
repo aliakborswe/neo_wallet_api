@@ -3,11 +3,10 @@ import { UserStatus, IUser, Role, AgentStatus } from "./user.interface";
 
 export const agentInfoSchema = new Schema(
   {
-    commissionRate: { type: Number, default: 1.5 }, // in percentage
+    commissionRate: { type: Number }, // in percentage
     approvalStatus: {
       type: String,
       enum: Object.values(AgentStatus),
-      default: AgentStatus.PENDING,
     },
   },
   { _id: false, versionKey: false }

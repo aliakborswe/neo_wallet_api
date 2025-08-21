@@ -2,7 +2,7 @@ import { JwtPayload } from "jsonwebtoken";
 import { envVars } from "../../../config/env";
 import AppError from "../../../helpers/AppError";
 import { Wallet } from "../wallet/wallet.model";
-import { IUser, Role, UserStatus } from "./user.interface";
+import { IAgentInfo, IUser, Role, UserStatus } from "./user.interface";
 import { User } from "./user.model";
 import bcryptjs from "bcryptjs";
 import httpStatus from "http-status-codes";
@@ -10,6 +10,13 @@ import httpStatus from "http-status-codes";
 // create a new user
 const createUser = async (payload: Partial<IUser>) => {
   const { email, password, ...rest } = payload;
+
+  if (!email || !password) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      "Email and password are required"
+    );
+  }
 
   const isUserExist = await User.findOne({ email });
 
@@ -21,19 +28,29 @@ const createUser = async (payload: Partial<IUser>) => {
   }
 
   const hashedPassword = await bcryptjs.hash(
-    password as string,
+    password,
     Number(envVars.BCRYPT_SALT_ROUND)
   );
 
-  const user = await User.create({
+  const userData: Partial<IUser> = {
+    ...rest,
     email,
     password: hashedPassword,
-    ...rest,
-  });
+  };
+
+  if (payload.role === Role.AGENT) {
+    userData.agentInfo = {
+      commissionRate: 1.5,
+      approvalStatus: "PENDING",
+    };
+  } 
+
+  const user = await User.create(userData);
   // create wallet
   if (user.role === "USER" || user.role === "AGENT") {
     await Wallet.create({
       userId: user._id,
+      account: user.email,
       balance: 5000, // default balance in paisa
     });
   }

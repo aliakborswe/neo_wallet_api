@@ -4,6 +4,7 @@ import { WalletStatus, IWallet } from "./wallet.interface";
 const walletSchema = new Schema<IWallet>(
   {
     userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    account: { type: String, required: true, unique: true },
     balance: { type: Number, default: 0, required: true }, // balance should be in paisa
     status: {
       type: String,
