@@ -3,8 +3,7 @@ import httpStatus from "http-status-codes";
 import AppError from "../../../helpers/AppError";
 import { IUser } from "../user/user.interface";
 import { User } from "../user/user.model";
-import jwt, { JwtPayload, SignOptions } from "jsonwebtoken";
-import { envVars } from "../../../config/env";
+import { JwtPayload } from "jsonwebtoken";
 import {
   createAccessTokenFromRefresh,
   createUserTokens,
@@ -48,7 +47,32 @@ const getNewAccessToken = async (refreshToken: string) => {
   };
 };
 
+// reset password
+const resetPassword = async (
+  oldPassword: string,
+  newPassword: string,
+  decodedToken: JwtPayload
+) => {
+  const user = await User.findById(decodedToken.userId);
+
+  const isOldPasswordMatched = await bcryptjs.compare(
+    oldPassword,
+    user!.password as string
+  );
+
+  if (!isOldPasswordMatched) {
+    throw new AppError(httpStatus.BAD_REQUEST, "Old password is incorrect");
+  }
+
+  user!.password = await bcryptjs.hash(
+    newPassword,
+    Number(process.env.BCRYPT_SALT_ROUND)
+  );
+  user!.save();
+};
+
 export const AuthService = {
   credentialsLogin,
   getNewAccessToken,
+  resetPassword,
 };

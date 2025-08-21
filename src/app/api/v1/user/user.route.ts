@@ -11,4 +11,5 @@ router.get(
   userController.getAllUsers
 );
 
+
 export const UserRoutes = router;
