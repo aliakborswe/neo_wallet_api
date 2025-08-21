@@ -23,6 +23,10 @@ export interface ITransaction {
   senderId: Types.ObjectId;
   receiverId?: Types.ObjectId;
   agentId?: Types.ObjectId;
+  senderBalanceBefore?: Number;
+  senderBalanceAfter?: Number;
+  receiverBalanceBefore?: Number;
+  receiverBalanceAfter?: Number;
   description?: string;
   status?: TransactionStatus;
 }

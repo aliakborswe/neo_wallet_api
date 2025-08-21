@@ -31,6 +31,10 @@ const transactionSchema = new Schema<ITransaction>(
       type: Schema.Types.ObjectId,
       ref: "User",
     },
+    senderBalanceBefore: { type: Number },
+    senderBalanceAfter: { type: Number },
+    receiverBalanceBefore: { type: Number },
+    receiverBalanceAfter: { type: Number },
     description: { type: String, default: "" },
     status: {
       type: String,
@@ -43,6 +47,22 @@ const transactionSchema = new Schema<ITransaction>(
     versionKey: false,
   }
 );
+
+// Pre-save middleware to generate transaction ID
+transactionSchema.pre("save", async function (next) {
+  if (this.isNew) {
+    const count = await model("Transaction").countDocuments();
+    const year = new Date().getFullYear();
+    const month = String(new Date().getMonth() + 1).padStart(2, "0");
+    const day = String(new Date().getDate()).padStart(2, "0");
+
+    this.transactionId = `TXN${year}${month}${day}${String(count + 1).padStart(
+      6,
+      "0"
+    )}`;
+  }
+  next();
+});
 
 export const Transaction = model<ITransaction>(
   "Transaction",
