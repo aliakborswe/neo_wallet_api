@@ -33,7 +33,21 @@ const getAllUsers = catchAsync(
   }
 );
 
+// Get current logged in user
+const getCurrentUser = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const user = await UserServices.getCurrentUser(req.user.userId);
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Current User Retrieved successfully",
+      data: user,
+    });
+  }
+);
+
 export const userControllers = {
   createUser,
   getAllUsers,
+  getCurrentUser,
 };

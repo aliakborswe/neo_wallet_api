@@ -53,7 +53,17 @@ const getAllUsers = async () => {
   };
 };
 
+// get current logged in user
+const getCurrentUser = async (userId: string) => {
+  const user = await User.findById(userId).select("-password");
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, "User not found");
+  }
+  return user;
+};
+
 export const UserServices = {
   createUser,
   getAllUsers,
+  getCurrentUser,
 };

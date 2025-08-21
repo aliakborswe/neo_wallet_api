@@ -12,6 +12,11 @@ router.get(
   checkAuth(Role.ADMIN, Role.SUPER_ADMIN),
   userControllers.getAllUsers
 );
+router.get(
+  "/current-user",
+  checkAuth(...Object.values(Role)),
+  userControllers.getCurrentUser
+);
 
 
 export const UserRoutes = router;
