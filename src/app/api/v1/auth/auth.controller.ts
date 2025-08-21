@@ -2,14 +2,14 @@ import httpStatus from "http-status-codes";
 import { NextFunction, Request, Response } from "express";
 import { catchAsync } from "../../../utils/catchAsync";
 import { sendResponse } from "../../../utils/sendResponse";
-import { AuthService } from "./auth.service";
+import { AuthServices } from "./auth.service";
 import { setAuthCookie } from "../../../utils/setCookie";
 import AppError from "../../../helpers/AppError";
 import { JwtPayload } from "jsonwebtoken";
 
 const credentialsLogin = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const loginInfo = await AuthService.credentialsLogin(req.body);
+    const loginInfo = await AuthServices.credentialsLogin(req.body);
 
     setAuthCookie(res, loginInfo);
 
@@ -33,7 +33,7 @@ const getNewAccessToken = catchAsync(
       );
     }
 
-    const tokenInfo = await AuthService.getNewAccessToken(refreshToken);
+    const tokenInfo = await AuthServices.getNewAccessToken(refreshToken);
     setAuthCookie(res, tokenInfo);
 
     sendResponse(res, {
@@ -51,7 +51,7 @@ const resetPassword = catchAsync(
     const { oldPassword, newPassword } = req.body;
     const decodedToken = req.user;
 
-    await AuthService.resetPassword(
+    await AuthServices.resetPassword(
       oldPassword,
       newPassword,
       decodedToken as JwtPayload
@@ -66,8 +66,33 @@ const resetPassword = catchAsync(
   }
 );
 
-export const AuthController = {
+// user logout
+const logout = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    res.clearCookie("accessToken", {
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax",
+    });
+
+    res.clearCookie("refreshToken", {
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax",
+    });
+
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "User Logout Successful",
+      data: null,
+    });
+  }
+);
+
+export const AuthControllers = {
   credentialsLogin,
   getNewAccessToken,
   resetPassword,
+  logout,
 };

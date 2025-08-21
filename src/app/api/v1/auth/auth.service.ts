@@ -71,7 +71,7 @@ const resetPassword = async (
   user!.save();
 };
 
-export const AuthService = {
+export const AuthServices = {
   credentialsLogin,
   getNewAccessToken,
   resetPassword,
