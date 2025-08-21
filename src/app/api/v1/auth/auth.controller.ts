@@ -9,6 +9,11 @@ const credentialsLogin = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
         const loginInfo = await AuthService.credentialsLogin(req.body);
 
+        res.cookie("accessToken", loginInfo.accessToken, {
+              httpOnly: true,
+              secure: false
+            });
+
         sendResponse(res, {
             statusCode: httpStatus.OK,
             success: true,
