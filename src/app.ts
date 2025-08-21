@@ -3,6 +3,8 @@ import cors from "cors";
 import express, { Request, Response } from "express";
 import cookieParser from "cookie-parser";
 import { router } from "./app/routes";
+import { globalErrorHandler } from "./app/middlewares/globalErrorHandler";
+import notFound from "./app/middlewares/notFound";
 
 
 const app = express();
@@ -23,5 +25,9 @@ app.get("/health", (req: Request, res: Response) => {
   });
 });
 
+// global error handler
+app.use(globalErrorHandler);
+// not found route handler
+app.use(notFound);
 
 export default app;

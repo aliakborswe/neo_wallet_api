@@ -33,7 +33,7 @@ const getAllUsers = catchAsync(
   }
 );
 
-export const userController = {
+export const userControllers = {
   createUser,
   getAllUsers,
 };
