@@ -1,5 +1,6 @@
 import { envVars } from "../../../config/env";
 import AppError from "../../../helpers/AppError";
+import { Wallet } from "../wallet/wallet.model";
 import { IUser } from "./user.interface";
 import { User } from "./user.model";
 import bcryptjs from "bcryptjs";
@@ -28,6 +29,13 @@ const createUser = async (payload: Partial<IUser>) => {
     password: hashedPassword,
     ...rest,
   });
+  // create wallet
+  if (user.role === "USER" || user.role === "AGENT") {
+    await Wallet.create({
+      userId: user._id,
+      balance: 5000, // default balance in paisa
+    });
+  }
   return user;
 };
 

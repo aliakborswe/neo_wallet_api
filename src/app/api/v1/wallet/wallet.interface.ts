@@ -8,5 +8,5 @@ export interface IWallet {
   _id?: string;
   userId: Types.ObjectId;
   balance: number;
-  status: WalletStatus;
+  status?: WalletStatus;
 }

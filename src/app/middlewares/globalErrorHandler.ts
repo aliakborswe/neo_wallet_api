@@ -2,6 +2,9 @@ import { NextFunction, Request, Response } from "express";
 import { envVars } from "../config/env";
 import AppError from "../helpers/AppError";
 import { handlerDuplicateError } from "../helpers/handlerDuplicateError";
+import { handlerCastError } from "../helpers/handlerCastError";
+import { handlerZodError } from "../helpers/handlerZodError";
+import { handlerValidationError } from "../helpers/handlerValidationError";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars
 export const globalErrorHandler = (
@@ -10,8 +13,8 @@ export const globalErrorHandler = (
   res: Response,
   next: NextFunction
 ) => {
-  if(envVars.NODE_ENV === "development"){
-    console.log(err)
+  if (envVars.NODE_ENV === "development") {
+    console.log(err);
   }
 
   let errorSources: any = [];
@@ -24,7 +27,33 @@ export const globalErrorHandler = (
     statusCode = simplifiedError.statusCode;
     message = simplifiedError.message;
   }
+  // Cast Error err or ObjectId err
+  else if (err.name === "CastError") {
+    const simplifiedError = handlerCastError(err);
+    statusCode = simplifiedError.statusCode;
+    message = simplifiedError.message;
+  }
+  // zod error
+  else if (err.name === "ZodError") {
+    const simplifiedError = handlerZodError(err);
+    statusCode = simplifiedError.statusCode;
+    message = simplifiedError.message;
 
+    errorSources = simplifiedError.errorSources;
+  }
+  // Mongoose Validation error
+  else if (err.name === "ValidationError") {
+    const simplifiedError = handlerValidationError(err);
+    statusCode = simplifiedError.statusCode;
+    errorSources = simplifiedError.errorSources;
+    message = simplifiedError.message;
+  } else if (err instanceof AppError) {
+    statusCode = err.statusCode;
+    message = err.message;
+  } else if (err instanceof Error) {
+    statusCode = 500;
+    message = err.message;
+  }
 
   res.status(statusCode).json({
     success: false,
