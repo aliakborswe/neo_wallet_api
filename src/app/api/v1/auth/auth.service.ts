@@ -32,9 +32,13 @@ const credentialsLogin = async (payload: Partial<IUser>) => {
   const {password: pass, ...rest} = isUserExist.toObject();
     return {
         accessToken: userTokens.accessToken,
+        refreshToken: userTokens.refreshToken,
         user: rest,
     };
 };
+
+// get new access token using refresh token
+
 
 export const AuthService = {
   credentialsLogin,

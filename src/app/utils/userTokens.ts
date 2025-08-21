@@ -14,7 +14,14 @@ export const createUserTokens = (user: Partial<IUser>) => {
     envVars.JWT_ACCESS_EXPIRES_IN
   );
 
+  const refreshToken = generateToken(
+    jwtPayload,
+    envVars.JWT_REFRESH_SECRET,
+    envVars.JWT_REFRESH_EXPIRES_IN
+  );
+
   return {
     accessToken,
+    refreshToken,
   };
 };
