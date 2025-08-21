@@ -34,6 +34,7 @@ export interface IUser {
   address?: string;
   userStatus?: UserStatus;
   isVerified?: boolean;
+  isDeleted?: string;
   role?: Role;
   agentInfo?: IAgentInfo[];
 }
