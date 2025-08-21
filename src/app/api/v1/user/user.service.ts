@@ -1,7 +1,8 @@
+import { JwtPayload } from "jsonwebtoken";
 import { envVars } from "../../../config/env";
 import AppError from "../../../helpers/AppError";
 import { Wallet } from "../wallet/wallet.model";
-import { IUser } from "./user.interface";
+import { IUser, Role, UserStatus } from "./user.interface";
 import { User } from "./user.model";
 import bcryptjs from "bcryptjs";
 import httpStatus from "http-status-codes";
@@ -62,8 +63,53 @@ const getCurrentUser = async (userId: string) => {
   return user;
 };
 
+// update user information
+const updateUserInfo = async (
+  payload: Partial<IUser>,
+  decodedToken: JwtPayload
+) => {
+  const isUserExist = await User.findById(decodedToken.userId);
+  if (!isUserExist) {
+    throw new AppError(httpStatus.NOT_FOUND, "User not found");
+  }
+
+  if (
+    isUserExist.isDeleted ||
+    isUserExist.userStatus === UserStatus.BLOCKED ||
+    isUserExist.userStatus === UserStatus.SUSPEND
+  ) {
+    throw new AppError(httpStatus.FORBIDDEN, "");
+  }
+
+  if (decodedToken.role === Object.values(Role)) {
+    throw new AppError(
+      httpStatus.FORBIDDEN,
+      "You are not authorized to update this user"
+    );
+  }
+
+  if (payload.password) {
+    payload.password = await bcryptjs.hash(
+      payload.password,
+      Number(envVars.BCRYPT_SALT_ROUND)
+    );
+  }
+
+  const updatedUser = await User.findByIdAndUpdate(
+    decodedToken.userId,
+    payload,
+    {
+      new: true,
+      runValidators: true,
+    }
+  ).select("-password");
+
+  return updatedUser;
+};
+
 export const UserServices = {
   createUser,
   getAllUsers,
   getCurrentUser,
+  updateUserInfo,
 };
