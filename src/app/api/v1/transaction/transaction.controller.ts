@@ -62,8 +62,28 @@ const sendMoney = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+// cash in controller
+const cashInFromAgent = catchAsync(async (req: Request, res: Response) => {
+  const { amount, receiverEmail, description } = req.body;
+
+  const result = await TransactionService.cashInFromAgent(
+    req.user,
+    amount,
+    description,
+    receiverEmail
+  );
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Cash in successfully",
+    data: result,
+  });
+});
+
 export const TransactionController = {
   addMoney,
   withdrawMoney,
   sendMoney,
+  cashInFromAgent
 };

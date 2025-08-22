@@ -5,6 +5,7 @@ import { Role } from "../user/user.interface";
 import { validateRequest } from "../../../middlewares/validateRequest";
 import {
   addMoneyZodSchema,
+  cashInZodSchema,
   sendMoneyZodSchema,
   withdrawMoneyZodSchema,
 } from "./transaction.validation";
@@ -28,6 +29,12 @@ router.post(
   checkAuth(Role.USER),
   validateRequest(sendMoneyZodSchema),
   TransactionController.sendMoney
+);
+router.post(
+  "/cash-in",
+  checkAuth(Role.AGENT),
+  validateRequest(cashInZodSchema),
+  TransactionController.cashInFromAgent
 );
 
 

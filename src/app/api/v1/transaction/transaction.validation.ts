@@ -28,3 +28,10 @@ export const sendMoneyZodSchema = z.object({
   amount: z.number().min(1, "Amount must be at least ৳1"),
   receiverEmail: z.email({ message: "Invalid email address format." }),
 });
+
+export const cashInZodSchema = z.object({
+  ...transactionZodSchema,
+  amount: z.number().min(1, "Amount must be at least ৳1"),
+  receiverEmail: z.email({ message: "Invalid email address format." }),
+});
+

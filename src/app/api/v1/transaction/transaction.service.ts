@@ -1,3 +1,4 @@
+import { AgentStatus } from "./../user/user.interface";
 import mongoose from "mongoose";
 import { UserStatus } from "../user/user.interface";
 import { Wallet } from "../wallet/wallet.model";
@@ -210,7 +211,6 @@ const sendMoneyService = async (
           type: TransactionType.SEND_MONEY,
           amount,
           fee,
-          receiverId: receiverUser._id,
           senderBalanceBefore: senderWallet.balance,
           senderBalanceAfter: senderWallet.balance - totalAmount,
           description: description || "Send money",
@@ -232,9 +232,8 @@ const sendMoneyService = async (
           userId: receiverUser._id,
           toAccount: receiverEmail,
           fromAccount: user.email,
-          type: TransactionType.RECEIVE_MONEY, // make sure enum has this
+          type: TransactionType.RECEIVE_MONEY,
           amount,
-          senderId: userId,
           receiverBalanceBefore: receiverWallet.balance,
           receiverBalanceAfter: receiverWallet.balance + amount,
           description: description || "Receive money",
@@ -267,8 +266,109 @@ const cashInFromAgent = async (
   description: string,
   receiverEmail: string
 ) => {
+  const userId = user.userId as string;
   const session = await mongoose.startSession();
+
   try {
+    session.startTransaction();
+
+    const agentWallet = await Wallet.findOne({ userId }).session(session);
+    if (!agentWallet) {
+      throw new AppError(httpStatus.NOT_FOUND, "Sender wallet not found");
+    }
+    const agent = await User.findOne({ email: user.email });
+    const receiverUser = await User.findOne({ email: receiverEmail });
+    if (!receiverUser) {
+      throw new AppError(httpStatus.NOT_FOUND, "Receiver not found");
+    }
+
+    const receiverWallet = await Wallet.findOne({
+      userId: receiverUser._id,
+    }).session(session);
+    if (!receiverWallet) {
+      throw new AppError(httpStatus.NOT_FOUND, "Receiver wallet not found");
+    }
+
+    //   // status checks
+    if (agentWallet.status !== WalletStatus.ACTIVE) {
+      throw new AppError(
+        httpStatus.NOT_ACCEPTABLE,
+        "Agent wallet is blocked/inactive"
+      );
+    }
+    if (agent?.agentInfo?.approvalStatus !== AgentStatus.APPROVED) {
+      throw new AppError(
+        httpStatus.NOT_ACCEPTABLE,
+        "Agent is not approved by admin"
+      );
+    }
+    if (
+      receiverWallet.status !== WalletStatus.ACTIVE ||
+      receiverUser.userStatus !== UserStatus.ACTIVE
+    ) {
+      throw new AppError(
+        httpStatus.NOT_ACCEPTABLE,
+        "Receiver wallet or profile is blocked/inactive"
+      );
+    }
+
+    //   // fee logic
+    //   const fee = 5;
+    //   const totalAmount = amount + fee;
+
+    if (agentWallet.balance < amount) {
+      throw new AppError(httpStatus.BAD_REQUEST, "Insufficient balance");
+    }
+
+    // agent transaction
+    const agentTx = await Transaction.create(
+      [
+        {
+          userId,
+          toAccount: user.email,
+          fromAccount: receiverEmail,
+          type: TransactionType.CASH_IN,
+          amount,
+          senderBalanceBefore: agentWallet.balance,
+          senderBalanceAfter: agentWallet.balance - amount,
+          description: description || "Cash in from agent",
+          paymentMethod: PaymentMethod.NEO_WALLET,
+          status: TransactionStatus.COMPLETED,
+        },
+      ],
+      { session }
+    );
+
+    // update sender balance
+    agentWallet.balance -= amount;
+    await agentWallet.save({ session });
+
+    // receiver transaction
+    const receiverTx = await Transaction.create(
+      [
+        {
+          userId: receiverUser._id,
+          toAccount: receiverEmail,
+          fromAccount: user.email,
+          type: TransactionType.CASH_IN, 
+          amount,
+          receiverBalanceBefore: receiverWallet.balance,
+          receiverBalanceAfter: receiverWallet.balance + amount,
+          description: description || "Cash in",
+          paymentMethod: PaymentMethod.NEO_WALLET,
+          status: TransactionStatus.COMPLETED,
+        },
+      ],
+      { session }
+    );
+
+    // update receiver balance
+    receiverWallet.balance += amount;
+    await receiverWallet.save({ session });
+
+    await session.commitTransaction();
+
+    return { agentTx, receiverTx };
   } catch (error: any) {
     await session.abortTransaction();
     throw new AppError(httpStatus.BAD_REQUEST, error.message);
@@ -281,4 +381,5 @@ export const TransactionService = {
   addMoneyService,
   withdrawMoneyService,
   sendMoneyService,
+  cashInFromAgent,
 };
