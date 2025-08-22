@@ -5,6 +5,7 @@ import { Role } from "../user/user.interface";
 import { validateRequest } from "../../../middlewares/validateRequest";
 import {
   addMoneyZodSchema,
+  sendMoneyZodSchema,
   withdrawMoneyZodSchema,
 } from "./transaction.validation";
 
@@ -22,5 +23,12 @@ router.post(
   validateRequest(withdrawMoneyZodSchema),
   TransactionController.withdrawMoney
 );
+router.post(
+  "/send-money",
+  checkAuth(Role.USER),
+  validateRequest(sendMoneyZodSchema),
+  TransactionController.sendMoney
+);
+
 
 export const TransactionRoute = router;

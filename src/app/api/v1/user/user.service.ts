@@ -43,7 +43,7 @@ const createUser = async (payload: Partial<IUser>) => {
       commissionRate: 1.5,
       approvalStatus: "PENDING",
     };
-  } 
+  }
 
   const user = await User.create(userData);
   // create wallet
@@ -51,7 +51,7 @@ const createUser = async (payload: Partial<IUser>) => {
     await Wallet.create({
       userId: user._id,
       account: user.email,
-      balance: 5000, // default balance in paisa
+      balance: 50, // default balance in tk
     });
   }
   return user;

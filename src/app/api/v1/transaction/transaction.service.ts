@@ -1,12 +1,17 @@
 import mongoose from "mongoose";
-import { Role, UserStatus } from "../user/user.interface";
+import { UserStatus } from "../user/user.interface";
 import { Wallet } from "../wallet/wallet.model";
 import { WalletStatus } from "../wallet/wallet.interface";
 import { Transaction } from "./transaction.model";
 import { JwtPayload } from "jsonwebtoken";
-import { TransactionStatus, TransactionType } from "./transaction.interface";
+import {
+  PaymentMethod,
+  TransactionStatus,
+  TransactionType,
+} from "./transaction.interface";
 import AppError from "../../../helpers/AppError";
 import httpStatus from "http-status-codes";
+import { User } from "../user/user.model";
 
 // add money service
 const addMoneyService = async (
@@ -18,13 +23,6 @@ const addMoneyService = async (
   const userId = user.userId as string;
   const session = await mongoose.startSession();
 
-  if (user.role !== Role.USER) {
-    throw new AppError(
-      httpStatus.UNAUTHORIZED,
-      "Only users can add money to their wallet"
-    );
-  }
-
   try {
     session.startTransaction();
 
@@ -34,10 +32,7 @@ const addMoneyService = async (
       throw new AppError(httpStatus.NOT_FOUND, "Wallet not found");
     }
 
-    if (
-      wallet.status !== WalletStatus.ACTIVE &&
-      user.userStatus !== UserStatus.ACTIVE
-    ) {
+    if (wallet.status !== WalletStatus.ACTIVE) {
       throw new AppError(
         httpStatus.NOT_ACCEPTABLE,
         "Wallet is blocked or inactive"
@@ -51,7 +46,6 @@ const addMoneyService = async (
           userId: userId,
           type: TransactionType.ADD_MONEY,
           amount,
-          receiverId: userId,
           receiverBalanceBefore: wallet.balance,
           receiverBalanceAfter: wallet.balance + amount,
           description: description || "Add money to wallet",
@@ -89,13 +83,6 @@ const withdrawMoneyService = async (
   const userId = user.userId as string;
   const session = await mongoose.startSession();
 
-  if (user.role !== Role.USER) {
-    throw new AppError(
-      httpStatus.UNAUTHORIZED,
-      "Only users can withdraw money from their wallet"
-    );
-  }
-
   try {
     session.startTransaction();
 
@@ -105,10 +92,7 @@ const withdrawMoneyService = async (
       throw new AppError(httpStatus.NOT_FOUND, "Wallet not found");
     }
 
-    if (
-      wallet.status !== WalletStatus.ACTIVE &&
-      user.userStatus !== UserStatus.ACTIVE
-    ) {
+    if (wallet.status !== WalletStatus.ACTIVE) {
       throw new AppError(
         httpStatus.NOT_ACCEPTABLE,
         "Wallet is blocked or inactive"
@@ -133,7 +117,6 @@ const withdrawMoneyService = async (
           type: TransactionType.WITHDRAW_MONEY,
           amount,
           fee,
-          senderId: userId,
           senderBalanceBefore: wallet.balance,
           senderBalanceAfter: wallet.balance - totalAmount,
           description: description || "Withdraw money from wallet",
@@ -161,7 +144,116 @@ const withdrawMoneyService = async (
   }
 };
 
+// send money service
+const sendMoneyService = async (
+  user: JwtPayload,
+  amount: number,
+  description: string,
+  receiverEmail: string
+) => {
+  const userId = user.userId as string;
+  const session = await mongoose.startSession();
+
+  try {
+    session.startTransaction();
+
+    const senderWallet = await Wallet.findOne({ userId }).session(session);
+    if (!senderWallet)
+      throw new AppError(httpStatus.NOT_FOUND, "Sender wallet not found");
+
+    const receiverUser = await User.findOne({ email: receiverEmail });
+    if (!receiverUser)
+      throw new AppError(httpStatus.NOT_FOUND, "Receiver not found");
+
+    const receiverWallet = await Wallet.findOne({
+      userId: receiverUser._id,
+    }).session(session);
+    if (!receiverWallet)
+      throw new AppError(httpStatus.NOT_FOUND, "Receiver wallet not found");
+
+    // status checks
+    if (senderWallet.status !== WalletStatus.ACTIVE) {
+      throw new AppError(
+        httpStatus.NOT_ACCEPTABLE,
+        "Sender wallet is blocked/inactive"
+      );
+    }
+    if (
+      receiverWallet.status !== WalletStatus.ACTIVE ||
+      receiverUser.userStatus !== UserStatus.ACTIVE
+    ) {
+      throw new AppError(
+        httpStatus.NOT_ACCEPTABLE,
+        "Receiver wallet or profile is blocked/inactive"
+      );
+    }
+
+    // fee logic
+    const fee = 5;
+    const totalAmount = amount + fee;
+
+    if (senderWallet.balance < totalAmount) {
+      throw new AppError(httpStatus.BAD_REQUEST, "Insufficient balance");
+    }
+
+    // sender transaction
+    const senderTx = await Transaction.create(
+      [
+        {
+          userId,
+          type: TransactionType.SEND_MONEY,
+          amount,
+          fee,
+          receiverId: receiverUser._id,
+          senderBalanceBefore: senderWallet.balance,
+          senderBalanceAfter: senderWallet.balance - totalAmount,
+          description: description || "Send money",
+          paymentMethod: PaymentMethod.NEO_WALLET,
+          status: TransactionStatus.COMPLETED,
+        },
+      ],
+      { session }
+    );
+
+    // update sender balance
+    senderWallet.balance -= totalAmount;
+    await senderWallet.save({ session });
+
+    // receiver transaction
+    const receiverTx = await Transaction.create(
+      [
+        {
+          userId: receiverUser._id,
+          type: TransactionType.RECEIVE_MONEY, // make sure enum has this
+          amount,
+          senderId: userId,
+          receiverBalanceBefore: receiverWallet.balance,
+          receiverBalanceAfter: receiverWallet.balance + amount,
+          description: description || "Receive money",
+          paymentMethod: PaymentMethod.NEO_WALLET,
+          status: TransactionStatus.COMPLETED,
+        },
+      ],
+      { session }
+    );
+
+    // update receiver balance
+    receiverWallet.balance += amount;
+    await receiverWallet.save({ session });
+
+    await session.commitTransaction();
+
+    return { senderTx, receiverTx };
+  } catch (error: any) {
+    await session.abortTransaction();
+    throw new AppError(httpStatus.BAD_REQUEST, error.message);
+  } finally {
+    session.endSession();
+  }
+};
+
 export const TransactionService = {
   addMoneyService,
   withdrawMoneyService,
+  sendMoneyService,
 };

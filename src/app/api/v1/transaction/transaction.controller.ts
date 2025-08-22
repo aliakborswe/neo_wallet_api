@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { TransactionService } from "./transaction.service";
 import { catchAsync } from "../../../utils/catchAsync";
 import { sendResponse } from "../../../utils/sendResponse";
+import httpStatus from "http-status-codes";
 
 // add money controller
 const addMoney = catchAsync(async (req: Request, res: Response) => {
@@ -15,7 +16,7 @@ const addMoney = catchAsync(async (req: Request, res: Response) => {
   );
 
   sendResponse(res, {
-    statusCode: 201,
+    statusCode: httpStatus.OK,
     success: true,
     message: "Money added successfully",
     data: result,
@@ -34,14 +35,35 @@ const withdrawMoney = catchAsync(async (req: Request, res: Response) => {
   );
 
   sendResponse(res, {
-    statusCode: 201,
+    statusCode: httpStatus.OK,
     success: true,
     message: "Money withdraw successfully",
     data: result,
   });
 });
 
+// send money controller
+const sendMoney = catchAsync(async (req: Request, res: Response) => {
+    const { amount, receiverEmail, description } = req.body;
+
+  const result = await TransactionService.sendMoneyService(
+    req.user,
+    amount,
+    description,
+    receiverEmail
+  );
+
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Send money successfully",
+    data: result,
+  });
+});
+
 export const TransactionController = {
-    addMoney,
+  addMoney,
   withdrawMoney,
+  sendMoney,
 };

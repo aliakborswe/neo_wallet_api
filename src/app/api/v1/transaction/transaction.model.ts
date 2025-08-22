@@ -1,4 +1,5 @@
 import { model, Schema } from "mongoose";
+import { customAlphabet } from "nanoid";
 import {
   ITransaction,
   PaymentMethod,
@@ -56,17 +57,11 @@ const transactionSchema = new Schema<ITransaction>(
 );
 
 // Pre-save middleware to generate transaction ID
-transactionSchema.pre("save", async function (next) {
+const nanoid = customAlphabet("1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ", 12);
+transactionSchema.pre("save", function (next) {
   if (this.isNew) {
-    const count = await model("Transaction").countDocuments();
-    const year = new Date().getFullYear();
-    const month = String(new Date().getMonth() + 1).padStart(2, "0");
-    const day = String(new Date().getDate()).padStart(2, "0");
-
-    this.transactionId = `TXN${year}${month}${day}${String(count + 1).padStart(
-      6,
-      "0"
-    )}`;
+    const date = new Date().toISOString().slice(0, 10).replace(/-/g, ""); // YYYYMMDD
+    this.transactionId = `TXN${date}${nanoid()}`;
   }
   next();
 });

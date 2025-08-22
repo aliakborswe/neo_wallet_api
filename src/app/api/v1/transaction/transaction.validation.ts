@@ -22,3 +22,9 @@ export const withdrawMoneyZodSchema = z.object({
   amount: z.number().min(1, "Amount must be at least ৳1"),
   paymentMethod: z.enum(Object.values(PaymentMethod)),
 });
+
+export const sendMoneyZodSchema = z.object({
+  ...transactionZodSchema,
+  amount: z.number().min(1, "Amount must be at least ৳1"),
+  receiverEmail: z.email({ message: "Invalid email address format." }),
+});
