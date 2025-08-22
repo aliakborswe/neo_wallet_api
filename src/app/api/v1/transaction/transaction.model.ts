@@ -1,21 +1,28 @@
 import { model, Schema } from "mongoose";
 import {
   ITransaction,
+  PaymentMethod,
   TransactionStatus,
   TransactionType,
 } from "./transaction.interface";
 
 const transactionSchema = new Schema<ITransaction>(
   {
-    userID: {
+    userId: {
       type: Schema.Types.ObjectId,
       ref: "User",
+      required: true,
     },
-    transactionId: { type: String, unique: true, required: true },
+    transactionId: { type: String, unique: true },
     type: {
       type: String,
       enum: Object.values(TransactionType),
       required: true,
+    },
+    paymentMethod: {
+      type: String,
+      enum: Object.values(PaymentMethod),
+      required: false,
     },
     amount: { type: Number, required: true }, // amount should be in paisa
     fee: { type: Number, default: 0 },
