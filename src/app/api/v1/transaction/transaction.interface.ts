@@ -24,14 +24,13 @@ export enum PaymentMethod {
 export interface ITransaction {
   _id?: Types.ObjectId;
   userId?: Types.ObjectId;
+  toAccount: string;
+  fromAccount: string;
   transactionId?: string;
   type: TransactionType;
   amount: number;
   paymentMethod?: PaymentMethod;
   fee?: number;
-  senderId?: Types.ObjectId;
-  receiverId?: Types.ObjectId;
-  agentId?: Types.ObjectId;
   senderBalanceBefore?: Number;
   senderBalanceAfter?: Number;
   receiverBalanceBefore?: Number;

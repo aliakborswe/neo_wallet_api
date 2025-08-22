@@ -44,6 +44,8 @@ const addMoneyService = async (
       [
         {
           userId: userId,
+          toAccount: user.email,
+          fromAccount: user.email,
           type: TransactionType.ADD_MONEY,
           amount,
           receiverBalanceBefore: wallet.balance,
@@ -114,6 +116,8 @@ const withdrawMoneyService = async (
       [
         {
           userId: userId,
+          toAccount: user.email,
+          fromAccount: user.email,
           type: TransactionType.WITHDRAW_MONEY,
           amount,
           fee,
@@ -201,6 +205,8 @@ const sendMoneyService = async (
       [
         {
           userId,
+          toAccount: user.email,
+          fromAccount: receiverEmail,
           type: TransactionType.SEND_MONEY,
           amount,
           fee,
@@ -224,6 +230,8 @@ const sendMoneyService = async (
       [
         {
           userId: receiverUser._id,
+          toAccount: receiverEmail,
+          fromAccount: user.email,
           type: TransactionType.RECEIVE_MONEY, // make sure enum has this
           amount,
           senderId: userId,
@@ -244,6 +252,23 @@ const sendMoneyService = async (
     await session.commitTransaction();
 
     return { senderTx, receiverTx };
+  } catch (error: any) {
+    await session.abortTransaction();
+    throw new AppError(httpStatus.BAD_REQUEST, error.message);
+  } finally {
+    session.endSession();
+  }
+};
+
+// cash-in from agent
+const cashInFromAgent = async (
+  user: JwtPayload,
+  amount: number,
+  description: string,
+  receiverEmail: string
+) => {
+  const session = await mongoose.startSession();
+  try {
   } catch (error: any) {
     await session.abortTransaction();
     throw new AppError(httpStatus.BAD_REQUEST, error.message);

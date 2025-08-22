@@ -15,6 +15,8 @@ const transactionSchema = new Schema<ITransaction>(
       required: true,
     },
     transactionId: { type: String, unique: true },
+    toAccount: { type: String, required: true },
+    fromAccount: { type: String, required: true },
     type: {
       type: String,
       enum: Object.values(TransactionType),
@@ -27,18 +29,6 @@ const transactionSchema = new Schema<ITransaction>(
     },
     amount: { type: Number, required: true }, // amount should be in paisa
     fee: { type: Number, default: 0 },
-    senderId: {
-      type: Schema.Types.ObjectId,
-      ref: "User",
-    },
-    receiverId: {
-      type: Schema.Types.ObjectId,
-      ref: "User",
-    },
-    agentId: {
-      type: Schema.Types.ObjectId,
-      ref: "User",
-    },
     senderBalanceBefore: { type: Number },
     senderBalanceAfter: { type: Number },
     receiverBalanceBefore: { type: Number },
