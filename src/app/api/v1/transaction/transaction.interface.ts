@@ -17,6 +17,8 @@ export enum TransactionStatus {
 export enum PaymentMethod {
   BANK = "BANK",
   CARD = "CARD",
+  AGENT = "AGENT",
+  PERSONAL = "PERSONAL",
 }
 
 export interface ITransaction {

@@ -2,6 +2,7 @@ import { Types } from "mongoose";
 
 export enum WalletStatus {
   ACTIVE = "ACTIVE",
+  SUSPEND = "SUSPEND",
   BLOCKED = "BLOCKED",
 }
 export interface IWallet {

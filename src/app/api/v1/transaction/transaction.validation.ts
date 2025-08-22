@@ -16,3 +16,9 @@ export const addMoneyZodSchema = z.object({
   amount: z.number().min(1, "Amount must be at least ৳1"),
   paymentMethod: z.enum(Object.values(PaymentMethod)),
 });
+
+export const withdrawMoneyZodSchema = z.object({
+  ...transactionZodSchema,
+  amount: z.number().min(1, "Amount must be at least ৳1"),
+  paymentMethod: z.enum(Object.values(PaymentMethod)),
+});
