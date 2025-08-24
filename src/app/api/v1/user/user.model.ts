@@ -29,8 +29,10 @@ const userSchema = new Schema<IUser>(
     isVerified: { type: Boolean, default: false },
     role: { type: String, enum: Object.values(Role), default: Role.USER },
     agentInfo: {
-      type: agentInfoSchema,
-      default: () => ({}), // Default to an empty object if no agentInfo is provided
+      commissionRate: { type: Number },
+      approvalStatus: { type: String },
+      commission: { type: Number },
+      txnfees: { type: Number },
     },
   },
   {

@@ -1,4 +1,4 @@
-import { AgentStatus } from "./../user/user.interface";
+import { AgentStatus, Role } from "./../user/user.interface";
 import mongoose from "mongoose";
 import { UserStatus } from "../user/user.interface";
 import { Wallet } from "../wallet/wallet.model";
@@ -136,6 +136,18 @@ const withdrawMoneyService = async (
     wallet.balance -= totalAmount;
     await wallet.save({ session });
 
+    // admin get transaction fee
+    const admin = await User.findOne({ role: Role.ADMIN }).session(session);
+    const adminWallet = await Wallet.findOne({ userId: admin?._id }).session(
+      session
+    );
+
+    // Update admin wallet balance
+    if (adminWallet) {
+      adminWallet.balance += fee;
+      await adminWallet.save({ session });
+    }
+
     await session.commitTransaction();
 
     return {
@@ -225,6 +237,18 @@ const sendMoneyService = async (
     senderWallet.balance -= totalAmount;
     await senderWallet.save({ session });
 
+    // admin get transaction fee
+    const admin = await User.findOne({ role: Role.ADMIN }).session(session);
+    const adminWallet = await Wallet.findOne({ userId: admin?._id }).session(
+      session
+    );
+
+    // Update admin wallet balance
+    if (adminWallet) {
+      adminWallet.balance += fee;
+      await adminWallet.save({ session });
+    }
+
     // receiver transaction
     const receiverTx = await Transaction.create(
       [
@@ -274,7 +298,7 @@ const cashInFromAgent = async (
 
     const agentWallet = await Wallet.findOne({ userId }).session(session);
     if (!agentWallet) {
-      throw new AppError(httpStatus.NOT_FOUND, "Sender wallet not found");
+      throw new AppError(httpStatus.NOT_FOUND, "Agent wallet not found");
     }
     const agent = await User.findOne({ email: user.email });
     const receiverUser = await User.findOne({ email: receiverEmail });
@@ -350,7 +374,7 @@ const cashInFromAgent = async (
           userId: receiverUser._id,
           toAccount: receiverEmail,
           fromAccount: user.email,
-          type: TransactionType.CASH_IN, 
+          type: TransactionType.CASH_IN,
           amount,
           receiverBalanceBefore: receiverWallet.balance,
           receiverBalanceAfter: receiverWallet.balance + amount,
@@ -377,9 +401,155 @@ const cashInFromAgent = async (
   }
 };
 
+// cash out
+const cashOut = async (
+  user: JwtPayload,
+  amount: number,
+  description: string,
+  receiverEmail: string
+) => {
+  const userId = user.userId as string;
+  const session = await mongoose.startSession();
+
+  try {
+    session.startTransaction();
+
+    const userWallet = await Wallet.findOne({ userId }).session(session);
+    if (!userWallet) {
+      throw new AppError(httpStatus.NOT_FOUND, "User wallet not found");
+    }
+
+    const agent = await User.findOne({ email: receiverEmail });
+    if (!agent) {
+      throw new AppError(httpStatus.NOT_FOUND, "Agent not found");
+    }
+
+    const agentWallet = await Wallet.findOne({
+      userId: agent._id,
+    }).session(session);
+    if (!agentWallet) {
+      throw new AppError(httpStatus.NOT_FOUND, "Receiver wallet not found");
+    }
+
+    // status checks
+    if (userWallet.status !== WalletStatus.ACTIVE) {
+      throw new AppError(
+        httpStatus.NOT_ACCEPTABLE,
+        "User wallet is blocked/inactive"
+      );
+    }
+    if (agent?.agentInfo?.approvalStatus !== AgentStatus.APPROVED) {
+      throw new AppError(
+        httpStatus.NOT_ACCEPTABLE,
+        "Agent is not approved by admin"
+      );
+    }
+    if (
+      agentWallet.status !== WalletStatus.ACTIVE ||
+      agent.userStatus !== UserStatus.ACTIVE
+    ) {
+      throw new AppError(
+        httpStatus.NOT_ACCEPTABLE,
+        "Agent wallet or profile is blocked/inactive"
+      );
+    }
+
+    if (amount < 99) {
+      throw new AppError(
+        httpStatus.NOT_ACCEPTABLE,
+        "Please increase your amount at least 100 TK"
+      );
+    }
+
+    // fee logic
+    const txnfee = agent?.agentInfo?.txnfees;
+    const fee = (amount / 1000) * txnfee;
+    const totalAmount = amount + fee;
+
+    if (userWallet.balance < totalAmount) {
+      throw new AppError(httpStatus.BAD_REQUEST, "Insufficient balance");
+    }
+
+    // user transaction
+    const userTx = await Transaction.create(
+      [
+        {
+          userId,
+          toAccount: user.email,
+          fromAccount: receiverEmail,
+          type: TransactionType.CASH_OUT,
+          amount,
+          fee,
+          senderBalanceBefore: userWallet.balance,
+          senderBalanceAfter: userWallet.balance - totalAmount,
+          description: description || "Cash Out",
+          paymentMethod: PaymentMethod.NEO_WALLET,
+          status: TransactionStatus.COMPLETED,
+        },
+      ],
+      { session }
+    );
+
+    // update sender balance
+    userWallet.balance -= totalAmount;
+    await userWallet.save({ session });
+
+    // admin get transaction fee
+    const admin = await User.findOne({ role: Role.ADMIN }).session(session);
+    const adminWallet = await Wallet.findOne({ userId: admin?._id }).session(
+      session
+    );
+
+    // Update admin wallet balance
+    if (adminWallet) {
+      adminWallet.balance += fee;
+      await adminWallet.save({ session });
+    }
+
+    // agent transaction
+    const receiverTx = await Transaction.create(
+      [
+        {
+          userId: agent._id,
+          toAccount: receiverEmail,
+          fromAccount: user.email,
+          type: TransactionType.CASH_OUT,
+          amount,
+          receiverBalanceBefore: agentWallet.balance,
+          receiverBalanceAfter: agentWallet.balance + amount,
+          description: description || "Cash Out from user",
+          paymentMethod: PaymentMethod.NEO_WALLET,
+          status: TransactionStatus.COMPLETED,
+        },
+      ],
+      { session }
+    );
+
+    // update receiver balance
+    agentWallet.balance += amount;
+    await agentWallet.save({ session });
+
+    // agent commission logic
+    const agentCommissionRate = agent.agentInfo.commissionRate;
+    const agentCommission = (amount / 1000) * agentCommissionRate;
+    agent.agentInfo.commission += agentCommission;
+    await agent.save({ session });
+
+    await session.commitTransaction();
+
+    return { userTx, receiverTx };
+  } catch (error: any) {
+    await session.abortTransaction();
+    throw new AppError(httpStatus.BAD_REQUEST, error.message);
+  } finally {
+    session.endSession();
+  }
+};
+
 export const TransactionService = {
   addMoneyService,
   withdrawMoneyService,
   sendMoneyService,
   cashInFromAgent,
+  cashOut,
 };

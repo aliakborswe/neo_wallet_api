@@ -44,7 +44,7 @@ const withdrawMoney = catchAsync(async (req: Request, res: Response) => {
 
 // send money controller
 const sendMoney = catchAsync(async (req: Request, res: Response) => {
-    const { amount, receiverEmail, description } = req.body;
+  const { amount, receiverEmail, description } = req.body;
 
   const result = await TransactionService.sendMoneyService(
     req.user,
@@ -52,7 +52,6 @@ const sendMoney = catchAsync(async (req: Request, res: Response) => {
     description,
     receiverEmail
   );
-
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -81,9 +80,29 @@ const cashInFromAgent = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+// cash out controller
+const cashOut = catchAsync(async (req: Request, res: Response) => {
+  const { amount, receiverEmail, description } = req.body;
+
+  const result = await TransactionService.cashOut(
+    req.user,
+    amount,
+    description,
+    receiverEmail
+  );
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Cash out successfully",
+    data: result,
+  });
+});
+
 export const TransactionController = {
   addMoney,
   withdrawMoney,
   sendMoney,
-  cashInFromAgent
+  cashInFromAgent,
+  cashOut,
 };

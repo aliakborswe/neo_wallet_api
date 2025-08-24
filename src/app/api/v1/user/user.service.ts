@@ -42,7 +42,9 @@ const createUser = async (payload: Partial<IUser>) => {
     userData.agentInfo = {
       commissionRate: 1.5,
       approvalStatus: "PENDING",
-    };
+      commission: 0,
+      txnfees: 20,
+    } as IAgentInfo;
   }
 
   const user = await User.create(userData);
@@ -54,6 +56,7 @@ const createUser = async (payload: Partial<IUser>) => {
       balance: 50, // default balance in tk
     });
   }
+
   return user;
 };
 
