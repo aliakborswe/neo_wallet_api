@@ -24,9 +24,4 @@ const walletSchema = new Schema<IWallet>(
   }
 );
 
-// Instance method to check if wallet can transact
-walletSchema.methods.canTransact = function () {
-  return this.status === WalletStatus.ACTIVE;
-};
-
 export const Wallet = model<IWallet>("Wallet", walletSchema);

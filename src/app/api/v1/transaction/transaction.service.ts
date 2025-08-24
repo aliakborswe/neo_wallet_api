@@ -13,6 +13,7 @@ import {
 import AppError from "../../../helpers/AppError";
 import httpStatus from "http-status-codes";
 import { User } from "../user/user.model";
+import { AgentCommissionHistory } from "../agentCommission/agent.commission.service";
 
 // add money service
 const addMoneyService = async (
@@ -336,10 +337,6 @@ const cashInFromAgent = async (
       );
     }
 
-    //   // fee logic
-    //   const fee = 5;
-    //   const totalAmount = amount + fee;
-
     if (agentWallet.balance < amount) {
       throw new AppError(httpStatus.BAD_REQUEST, "Insufficient balance");
     }
@@ -363,9 +360,12 @@ const cashInFromAgent = async (
       { session }
     );
 
-    // update sender balance
+    // update agent balance
     agentWallet.balance -= amount;
     await agentWallet.save({ session });
+
+    // agent commission
+    AgentCommissionHistory.commissionHistory(agent._id, amount);
 
     // receiver transaction
     const receiverTx = await Transaction.create(
@@ -529,11 +529,8 @@ const cashOut = async (
     agentWallet.balance += amount;
     await agentWallet.save({ session });
 
-    // agent commission logic
-    const agentCommissionRate = agent.agentInfo.commissionRate;
-    const agentCommission = (amount / 1000) * agentCommissionRate;
-    agent.agentInfo.commission += agentCommission;
-    await agent.save({ session });
+    // agent commission
+    AgentCommissionHistory.commissionHistory(agent._id, amount);
 
     await session.commitTransaction();
 

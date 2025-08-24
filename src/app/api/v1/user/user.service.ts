@@ -42,7 +42,7 @@ const createUser = async (payload: Partial<IUser>) => {
     userData.agentInfo = {
       commissionRate: 1.5,
       approvalStatus: "PENDING",
-      commission: 0,
+      totalCommission: 0,
       txnfees: 20,
     } as IAgentInfo;
   }

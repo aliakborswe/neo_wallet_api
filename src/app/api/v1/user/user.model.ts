@@ -29,10 +29,22 @@ const userSchema = new Schema<IUser>(
     isVerified: { type: Boolean, default: false },
     role: { type: String, enum: Object.values(Role), default: Role.USER },
     agentInfo: {
-      commissionRate: { type: Number },
+      commissionRate: {
+        type: Number,
+        get: (value: number) => value / 100,
+        set: (value: number) => value * 100,
+      },
       approvalStatus: { type: String },
-      commission: { type: Number },
-      txnfees: { type: Number },
+      totalCommission: {
+        type: Number,
+        get: (value: number) => value / 100,
+        set: (value: number) => value * 100,
+      },
+      txnfees: {
+        type: Number,
+        get: (value: number) => value / 100,
+        set: (value: number) => value * 100,
+      },
     },
   },
   {

@@ -27,12 +27,38 @@ const transactionSchema = new Schema<ITransaction>(
       enum: Object.values(PaymentMethod),
       required: false,
     },
-    amount: { type: Number, required: true }, // amount should be in paisa
-    fee: { type: Number, default: 0 },
-    senderBalanceBefore: { type: Number },
-    senderBalanceAfter: { type: Number },
-    receiverBalanceBefore: { type: Number },
-    receiverBalanceAfter: { type: Number },
+    amount: {
+      type: Number,
+      required: true,
+      get: (value: number) => value / 100,
+      set: (value: number) => value * 100,
+    },
+    fee: {
+      type: Number,
+      default: 0,
+      get: (value: number) => value / 100,
+      set: (value: number) => value * 100,
+    },
+    senderBalanceBefore: {
+      type: Number,
+      get: (value: number) => value / 100,
+      set: (value: number) => value * 100,
+    },
+    senderBalanceAfter: {
+      type: Number,
+      get: (value: number) => value / 100,
+      set: (value: number) => value * 100,
+    },
+    receiverBalanceBefore: {
+      type: Number,
+      get: (value: number) => value / 100,
+      set: (value: number) => value * 100,
+    },
+    receiverBalanceAfter: {
+      type: Number,
+      get: (value: number) => value / 100,
+      set: (value: number) => value * 100,
+    },
     description: { type: String, default: "" },
     status: {
       type: String,
