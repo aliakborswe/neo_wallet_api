@@ -27,5 +27,10 @@ router.patch(
   validateRequest(updateUserZodSchema),
   userControllers.updateUserInfo
 );
+router.patch(
+  "/agent-status",
+  checkAuth(Role.ADMIN),
+  userControllers.agentApprovalStatus
+);
 
 export const UserRoutes = router;

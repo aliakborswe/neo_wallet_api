@@ -59,9 +59,26 @@ const updateUserInfo = catchAsync(
   }
 );
 
+// Approved or Suspend agent status
+const agentApprovalStatus = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const updatedUser = await UserServices.agentApprovalStatusService(
+      req.body.agentId,
+      req.body.approvalStatus
+    );
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Agent Status updated successfully",
+      data: updatedUser,
+    });
+  }
+);
+
 export const userControllers = {
   createUser,
   getAllUsers,
   getCurrentUser,
   updateUserInfo,
+  agentApprovalStatus,
 };

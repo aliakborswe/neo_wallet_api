@@ -20,7 +20,7 @@ const walletBlockUnblock = async (payload: Partial<IWallet>) => {
 
   // If wallet already has the same status, don’t update
   if (wallet.status === status) {
-    // return wallet;
+    return wallet;
   }
 
   wallet.status = status as WalletStatus;

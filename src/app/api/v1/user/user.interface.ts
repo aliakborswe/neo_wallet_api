@@ -21,7 +21,7 @@ export enum Role {
 
 export interface IAgentInfo {
   commissionRate: number;
-  approvalStatus: "PENDING" | "APPROVED" | "REJECTED";
+  approvalStatus: AgentStatus;
   totalCommission: number;
   txnfees: number;
 }

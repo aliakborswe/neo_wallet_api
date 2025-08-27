@@ -2,7 +2,13 @@ import { JwtPayload } from "jsonwebtoken";
 import { envVars } from "../../../config/env";
 import AppError from "../../../helpers/AppError";
 import { Wallet } from "../wallet/wallet.model";
-import { IAgentInfo, IUser, Role, UserStatus } from "./user.interface";
+import {
+  AgentStatus,
+  IAgentInfo,
+  IUser,
+  Role,
+  UserStatus,
+} from "./user.interface";
 import { User } from "./user.model";
 import bcryptjs from "bcryptjs";
 import httpStatus from "http-status-codes";
@@ -127,9 +133,42 @@ const updateUserInfo = async (
   return updatedUser;
 };
 
+// agent approval status
+const agentApprovalStatusService = async (
+  _id: string,
+  approvalStatus: Partial<AgentStatus>
+) => {
+  if (!_id || !approvalStatus) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      "Agent id and status are required"
+    );
+  }
+
+  const agent = await User.findOne({ _id });
+  if (!agent || agent.role !== Role.AGENT) {
+    throw new AppError(httpStatus.NOT_FOUND, "Agent not found");
+  }
+
+  // If agent approval status already has the same status, don’t update
+  if (agent.agentInfo?.approvalStatus === approvalStatus) {
+    return agent; // no update needed
+  }
+
+  if (!agent.agentInfo) {
+    throw new AppError(httpStatus.BAD_REQUEST, "Agent info not found");
+  }
+
+  agent.agentInfo.approvalStatus = approvalStatus;
+  await agent.save();
+
+  return agent;
+};
+
 export const UserServices = {
   createUser,
   getAllUsers,
   getCurrentUser,
   updateUserInfo,
+  agentApprovalStatusService,
 };
