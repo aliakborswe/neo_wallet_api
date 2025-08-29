@@ -33,6 +33,20 @@ const getAllUsers = catchAsync(
   }
 );
 
+// Get all agents
+const getAllAgents = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const result = await UserServices.getAllAgents();
+
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "All Agent Retrieved successfully",
+      data: result.data,
+    });
+  }
+);
+
 // Get current logged in user
 const getCurrentUser = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -81,4 +95,5 @@ export const userControllers = {
   getCurrentUser,
   updateUserInfo,
   agentApprovalStatus,
+  getAllAgents,
 };

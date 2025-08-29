@@ -12,6 +12,7 @@ import {
 
 const router = Router();
 
+router.get("/", checkAuth(Role.ADMIN), TransactionController.getAllTransaction);
 router.post(
   "/add-money",
   checkAuth(Role.USER),
@@ -42,6 +43,5 @@ router.post(
   validateRequest(cashInOutZodSchema),
   TransactionController.cashOut
 );
-
 
 export const TransactionRoute = router;

@@ -17,6 +17,11 @@ router.get(
   userControllers.getAllUsers
 );
 router.get(
+  "/all-agent",
+  checkAuth(Role.ADMIN, Role.SUPER_ADMIN),
+  userControllers.getAllAgents
+);
+router.get(
   "/profile",
   checkAuth(...Object.values(Role)),
   userControllers.getCurrentUser

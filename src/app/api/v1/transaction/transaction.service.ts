@@ -14,6 +14,8 @@ import AppError from "../../../helpers/AppError";
 import httpStatus from "http-status-codes";
 import { User } from "../user/user.model";
 import { AgentCommissionHistory } from "../agentCommission/agent.commission.service";
+import { QueryBuilder } from "../../../utils/QueryBuilder";
+import { transactionSearchableFields } from "./transaction.constant";
 
 // add money service
 const addMoneyService = async (
@@ -543,10 +545,45 @@ const cashOut = async (
   }
 };
 
+// get all transaction service
+const getAllTransaction = async (
+  query: Record<string, string>,
+  user: JwtPayload
+) => {
+  // Convert amount to number
+  if (query.amount !== undefined) {
+    const num = Number(query.amount);
+    if (!isNaN(num)) {
+      query.amount = num as any;
+    } else {
+      delete query.amount; // Remove invalid amount filter
+    }
+  }
+
+  const queryBuilder = new QueryBuilder(Transaction.find(), query);
+
+  const transactions = await queryBuilder
+    .search(transactionSearchableFields)
+    .filter()
+    .sort()
+    .fields()
+    .paginate();
+
+  const [data, meta] = await Promise.all([
+    transactions.build(),
+    queryBuilder.getMeta(),
+  ]);
+
+  return {
+    data,
+    meta,
+  };
+};
 export const TransactionService = {
   addMoneyService,
   withdrawMoneyService,
   sendMoneyService,
   cashInFromAgent,
   cashOut,
+  getAllTransaction,
 };

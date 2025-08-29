@@ -68,7 +68,7 @@ const createUser = async (payload: Partial<IUser>) => {
 
 // get all users
 const getAllUsers = async () => {
-  const users = await User.find({});
+  const users = await User.find({ role: Role.USER });
 
   const totalUsers = await User.countDocuments();
 
@@ -77,6 +77,15 @@ const getAllUsers = async () => {
     meta: {
       total: totalUsers,
     },
+  };
+};
+
+// get all agents
+const getAllAgents = async () => {
+  const agents = await User.find({ role: Role.AGENT });
+
+  return {
+    data: agents,
   };
 };
 
@@ -171,4 +180,5 @@ export const UserServices = {
   getCurrentUser,
   updateUserInfo,
   agentApprovalStatusService,
+  getAllAgents,
 };

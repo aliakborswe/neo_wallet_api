@@ -99,10 +99,30 @@ const cashOut = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+// get all transactions
+const getAllTransaction = catchAsync(async (req: Request, res: Response) => {
+  const query = req.query;
+  const user = req.user;
+
+  const result = await TransactionService.getAllTransaction(
+    query as Record<string, string>,
+    user
+  );
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Transaction retrieved successfully",
+    data: result.data,
+    meta: result.meta,
+  });
+});
+
 export const TransactionController = {
   addMoney,
   withdrawMoney,
   sendMoney,
   cashInFromAgent,
   cashOut,
+  getAllTransaction,
 };
