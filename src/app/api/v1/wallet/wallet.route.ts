@@ -10,6 +10,7 @@ router.get(
   checkAuth(Role.ADMIN, Role.SUPER_ADMIN),
   WalletController.getAllWallet
 );
+router.get("/my-wallet", checkAuth(...Object.values(Role)), WalletController.getMyWallet)
 router.patch(
   "/status",
   checkAuth(Role.ADMIN),

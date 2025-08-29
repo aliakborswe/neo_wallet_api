@@ -16,11 +16,24 @@ const walletBlockUnblock = catchAsync(
     });
   }
 );
+// get my wallet
+const getMyWallet = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const result = await WalletService.getMyWallet(req.user);
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "My Wallet Retrieved successfully",
+      data: result,
+    });
+  }
+);
 
+// admin controller
 // Get all wallets
 const getAllWallet = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const result = await WalletService.getAllWallet()
+    const result = await WalletService.getAllWallet();
 
     sendResponse(res, {
       statusCode: httpStatus.OK,
@@ -34,4 +47,5 @@ const getAllWallet = catchAsync(
 export const WalletController = {
   walletBlockUnblock,
   getAllWallet,
+  getMyWallet,
 };
