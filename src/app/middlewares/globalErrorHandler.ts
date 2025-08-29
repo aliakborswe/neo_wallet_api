@@ -1,4 +1,5 @@
-import { NextFunction, Request, Response } from "express";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { Request, Response } from "express";
 import { envVars } from "../config/env";
 import AppError from "../helpers/AppError";
 import { handlerDuplicateError } from "../helpers/handlerDuplicateError";
@@ -6,13 +7,7 @@ import { handlerCastError } from "../helpers/handlerCastError";
 import { handlerZodError } from "../helpers/handlerZodError";
 import { handlerValidationError } from "../helpers/handlerValidationError";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars
-export const globalErrorHandler = (
-  err: any,
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+export const globalErrorHandler = (err: any, req: Request, res: Response) => {
   if (envVars.NODE_ENV === "development") {
     console.log(err);
   }

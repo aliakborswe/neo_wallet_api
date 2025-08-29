@@ -1,5 +1,4 @@
-
-import { model, Schema, Types } from "mongoose";
+import { model, Schema } from "mongoose";
 
 const agentCommissionSchema = new Schema(
   {
@@ -10,7 +9,7 @@ const agentCommissionSchema = new Schema(
       required: true,
       get: (value: number) => value / 100, // convert paisa → currency
       set: (value: number) => value * 100, // balance store in paisa
-    }
+    },
   },
   {
     timestamps: true,
@@ -18,5 +17,7 @@ const agentCommissionSchema = new Schema(
   }
 );
 
-
-export const CommissionHistory = model("CommissionHistory", agentCommissionSchema);
+export const CommissionHistory = model(
+  "CommissionHistory",
+  agentCommissionSchema
+);

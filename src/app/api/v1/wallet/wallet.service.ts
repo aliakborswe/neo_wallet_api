@@ -1,6 +1,5 @@
 import { JwtPayload } from "jsonwebtoken";
 import AppError from "../../../helpers/AppError";
-import { IUser } from "../user/user.interface";
 import { IWallet, WalletStatus } from "./wallet.interface";
 import { Wallet } from "./wallet.model";
 import httpStatus from "http-status-codes";

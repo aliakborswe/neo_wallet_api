@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import bcryptjs from "bcryptjs";
 import httpStatus from "http-status-codes";
 import AppError from "../../../helpers/AppError";
@@ -31,6 +32,7 @@ const credentialsLogin = async (payload: Partial<IUser>) => {
 
   const userTokens = createUserTokens(isUserExist);
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { password: pass, ...rest } = isUserExist.toObject();
   return {
     accessToken: userTokens.accessToken,

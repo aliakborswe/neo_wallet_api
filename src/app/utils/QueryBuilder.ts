@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Query } from "mongoose";
 import { excludeField } from "../constants/constants";
 
@@ -17,7 +18,7 @@ export class QueryBuilder<T> {
     const filter = { ...this.query };
 
     for (const field of excludeField) {
-      delete filter[field];
+      filter[field] = undefined;
     }
 
     // Convert numeric fields to numbers if present and valid
@@ -27,7 +28,7 @@ export class QueryBuilder<T> {
         if (!isNaN(num)) {
           filter[field] = num;
         } else {
-          delete filter[field];
+          filter[field] = undefined;
         }
       }
     }

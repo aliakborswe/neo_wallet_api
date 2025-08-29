@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { AgentStatus, Role } from "./../user/user.interface";
 import mongoose from "mongoose";
 import { UserStatus } from "../user/user.interface";

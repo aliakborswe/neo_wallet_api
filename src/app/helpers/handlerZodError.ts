@@ -1,7 +1,5 @@
-import {
-  TErrorSources,
-  TGenericErrorResponse,
-} from "../interfaces/error.types";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { TErrorSources, TGenericErrorResponse } from "../types/error.types";
 
 export const handlerZodError = (err: any): TGenericErrorResponse => {
   const errorSources: TErrorSources[] = [];
@@ -9,8 +7,6 @@ export const handlerZodError = (err: any): TGenericErrorResponse => {
   err.issues.forEach((issue: any) => {
     errorSources.push({
       path: issue.path[issue.path.length - 1],
-      // path: "nickname inside last-name inside name"
-      // path: issue.path.length > 1 && issue.path.reverse().join("inside")
       message: issue.message,
     });
   });

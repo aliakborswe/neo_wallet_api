@@ -31,10 +31,10 @@ export interface ITransaction {
   amount: number;
   paymentMethod?: PaymentMethod;
   fee?: number;
-  senderBalanceBefore?: Number;
-  senderBalanceAfter?: Number;
-  receiverBalanceBefore?: Number;
-  receiverBalanceAfter?: Number;
+  senderBalanceBefore?: number;
+  senderBalanceAfter?: number;
+  receiverBalanceBefore?: number;
+  receiverBalanceAfter?: number;
   description?: string;
   status?: TransactionStatus;
 }
