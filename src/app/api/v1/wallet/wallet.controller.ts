@@ -17,6 +17,21 @@ const walletBlockUnblock = catchAsync(
   }
 );
 
+// Get all wallets
+const getAllWallet = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const result = await WalletService.getAllWallet()
+
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "All Wallet Retrieved successfully",
+      data: result.data,
+    });
+  }
+);
+
 export const WalletController = {
   walletBlockUnblock,
+  getAllWallet,
 };

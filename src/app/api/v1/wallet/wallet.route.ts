@@ -5,6 +5,11 @@ import { Role } from "../user/user.interface";
 
 const router = Router();
 
+router.get(
+  "/",
+  checkAuth(Role.ADMIN, Role.SUPER_ADMIN),
+  WalletController.getAllWallet
+);
 router.patch(
   "/status",
   checkAuth(Role.ADMIN),

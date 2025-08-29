@@ -28,6 +28,17 @@ const walletBlockUnblock = async (payload: Partial<IWallet>) => {
   return wallet;
 };
 
+
+// get all wallets
+const getAllWallet = async () => {
+  const wallets = await Wallet.find();
+
+  return {
+    data: wallets,
+  };
+};
+
 export const WalletService = {
   walletBlockUnblock,
+  getAllWallet,
 };
