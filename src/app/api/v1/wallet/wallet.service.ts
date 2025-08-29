@@ -32,10 +32,9 @@ const walletBlockUnblock = async (payload: Partial<IWallet>) => {
 
 //  get my wallet
 const getMyWallet = async (payload: JwtPayload) => {
+  const { userId } = payload;
 
-  const {userId} = payload
-
-  const wallet = await Wallet.findOne({ userId});
+  const wallet = await Wallet.findOne({ userId });
   if (!wallet) {
     throw new AppError(httpStatus.NOT_FOUND, "Wallet not found");
   }
@@ -45,11 +44,23 @@ const getMyWallet = async (payload: JwtPayload) => {
 
 // for admin
 // get all wallets
-const getAllWallet = async () => {
-  const wallets = await Wallet.find();
+const getAllWallet = async (query: Record<string, string>) => {
+  const page = parseInt(query.page) || 1;
+  const limit = parseInt(query.limit) || 10;
+  const skip = (page - 1) * limit;
+  const wallets = await Wallet.find()
+    .populate("userId", "name email")
+    .skip(skip)
+    .limit(limit)
+    .sort("-createdAt");
+
+  const totalWallet = await Wallet.countDocuments();
 
   return {
     data: wallets,
+    meta: {
+      total: totalWallet,
+    },
   };
 };
 

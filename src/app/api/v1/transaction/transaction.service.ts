@@ -547,8 +547,7 @@ const cashOut = async (
 
 // get all transaction service
 const getAllTransaction = async (
-  query: Record<string, string>,
-  user: JwtPayload
+  query: Record<string, string>
 ) => {
   // Convert amount to number
   if (query.amount !== undefined) {

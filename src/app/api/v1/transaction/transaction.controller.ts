@@ -99,14 +99,12 @@ const cashOut = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+// for admin
 // get all transactions
 const getAllTransaction = catchAsync(async (req: Request, res: Response) => {
   const query = req.query;
-  const user = req.user;
-
   const result = await TransactionService.getAllTransaction(
-    query as Record<string, string>,
-    user
+    query as Record<string, string>
   );
 
   sendResponse(res, {
