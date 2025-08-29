@@ -142,6 +142,7 @@ const updateUserInfo = async (
   return updatedUser;
 };
 
+// for agent
 // agent approval status
 const agentApprovalStatusService = async (
   _id: string,
@@ -174,6 +175,29 @@ const agentApprovalStatusService = async (
   return agent;
 };
 
+const setAgentTxnFee = async (_id: string, transactionFee: number) => {
+  if (!_id || !transactionFee) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      "Agent id and Transaction fee are required"
+    );
+  }
+
+  const agent = await User.findOne({ _id });
+  if (!agent || agent.role !== Role.AGENT) {
+    throw new AppError(httpStatus.NOT_FOUND, "Agent not found");
+  }
+
+  if (!agent.agentInfo) {
+    throw new AppError(httpStatus.BAD_REQUEST, "Agent info not found");
+  }
+
+  agent.agentInfo.txnfees = transactionFee;
+  await agent.save();
+
+  return agent;
+};
+
 export const UserServices = {
   createUser,
   getAllUsers,
@@ -181,4 +205,5 @@ export const UserServices = {
   updateUserInfo,
   agentApprovalStatusService,
   getAllAgents,
+  setAgentTxnFee,
 };

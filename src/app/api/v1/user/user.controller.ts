@@ -18,6 +18,33 @@ const createUser = catchAsync(
   }
 );
 
+// Get current logged in user
+const getCurrentUser = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const user = await UserServices.getCurrentUser(req.user.userId);
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Current User Retrieved successfully",
+      data: user,
+    });
+  }
+);
+
+// Update user information
+const updateUserInfo = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const updatedUser = await UserServices.updateUserInfo(req.body, req.user);
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "User updated successfully",
+      data: updatedUser,
+    });
+  }
+);
+
+// for admin
 // Get all users
 const getAllUsers = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -47,32 +74,6 @@ const getAllAgents = catchAsync(
   }
 );
 
-// Get current logged in user
-const getCurrentUser = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
-    const user = await UserServices.getCurrentUser(req.user.userId);
-    sendResponse(res, {
-      statusCode: httpStatus.OK,
-      success: true,
-      message: "Current User Retrieved successfully",
-      data: user,
-    });
-  }
-);
-
-// Update user information
-const updateUserInfo = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
-    const updatedUser = await UserServices.updateUserInfo(req.body, req.user);
-    sendResponse(res, {
-      statusCode: httpStatus.OK,
-      success: true,
-      message: "User updated successfully",
-      data: updatedUser,
-    });
-  }
-);
-
 // Approved or Suspend agent status
 const agentApprovalStatus = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -89,6 +90,22 @@ const agentApprovalStatus = catchAsync(
   }
 );
 
+// set Agent Transaction fee
+const agentTransactionFee = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const updatedUser = await UserServices.setAgentTxnFee(
+      req.body.agentId,
+      req.body.transactionFee
+    );
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Agent Transaction fee updated successfully",
+      data: updatedUser,
+    });
+  }
+);
+
 export const userControllers = {
   createUser,
   getAllUsers,
@@ -96,4 +113,5 @@ export const userControllers = {
   updateUserInfo,
   agentApprovalStatus,
   getAllAgents,
+  agentTransactionFee,
 };

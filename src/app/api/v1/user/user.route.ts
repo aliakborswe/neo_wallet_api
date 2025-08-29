@@ -11,16 +11,7 @@ router.post(
   validateRequest(createUserZodSchema),
   userControllers.createUser
 );
-router.get(
-  "/all-user",
-  checkAuth(Role.ADMIN, Role.SUPER_ADMIN),
-  userControllers.getAllUsers
-);
-router.get(
-  "/all-agent",
-  checkAuth(Role.ADMIN, Role.SUPER_ADMIN),
-  userControllers.getAllAgents
-);
+
 router.get(
   "/profile",
   checkAuth(...Object.values(Role)),
@@ -32,10 +23,26 @@ router.patch(
   validateRequest(updateUserZodSchema),
   userControllers.updateUserInfo
 );
+// admin route
+router.get(
+  "/all-user",
+  checkAuth(Role.ADMIN, Role.SUPER_ADMIN),
+  userControllers.getAllUsers
+);
+router.get(
+  "/all-agent",
+  checkAuth(Role.ADMIN, Role.SUPER_ADMIN),
+  userControllers.getAllAgents
+);
 router.patch(
   "/agent-status",
   checkAuth(Role.ADMIN),
   userControllers.agentApprovalStatus
+);
+router.patch(
+  "/agent-txnfee",
+  checkAuth(Role.ADMIN),
+  userControllers.agentTransactionFee
 );
 
 export const UserRoutes = router;
