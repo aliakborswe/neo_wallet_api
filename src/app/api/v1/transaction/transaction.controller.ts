@@ -99,6 +99,25 @@ const cashOut = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+// get my transactions
+// get all transactions
+const getMyAllTransaction = catchAsync(async (req: Request, res: Response) => {
+  const query = req.query;
+  const user = req.user
+  const result = await TransactionService.getMyAllTransaction(
+    query as Record<string, string>,
+    user
+  );
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "My Transaction retrieved successfully",
+    data: result.data,
+    meta: result.meta,
+  });
+});
+
 // for admin
 // get all transactions
 const getAllTransaction = catchAsync(async (req: Request, res: Response) => {
@@ -123,4 +142,5 @@ export const TransactionController = {
   cashInFromAgent,
   cashOut,
   getAllTransaction,
+  getMyAllTransaction,
 };

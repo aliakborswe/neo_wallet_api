@@ -545,10 +545,37 @@ const cashOut = async (
   }
 };
 
-// get all transaction service
-const getAllTransaction = async (
-  query: Record<string, string>
+// get my all transaction
+const getMyAllTransaction = async (
+  query: Record<string, string>,
+  user: JwtPayload
 ) => {
+  const queryBuilder = new QueryBuilder(
+    Transaction.find({ userId: user.userId }),
+    query
+  );
+
+  const transactions = await queryBuilder
+    .search(transactionSearchableFields)
+    .filter()
+    .sort()
+    .fields()
+    .paginate();
+
+  const [data, meta] = await Promise.all([
+    transactions.build(),
+    queryBuilder.getMeta(),
+  ]);
+
+  return {
+    data,
+    meta,
+  };
+};
+
+// for admin
+// get all transaction service
+const getAllTransaction = async (query: Record<string, string>) => {
   // Convert amount to number
   if (query.amount !== undefined) {
     const num = Number(query.amount);
@@ -585,4 +612,5 @@ export const TransactionService = {
   cashInFromAgent,
   cashOut,
   getAllTransaction,
+  getMyAllTransaction,
 };

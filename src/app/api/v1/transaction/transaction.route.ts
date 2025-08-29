@@ -13,6 +13,7 @@ import {
 const router = Router();
 
 router.get("/", checkAuth(Role.ADMIN), TransactionController.getAllTransaction);
+router.get("/my", checkAuth(...Object.values(Role)), TransactionController.getMyAllTransaction)
 router.post(
   "/add-money",
   checkAuth(Role.USER),
