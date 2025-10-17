@@ -12,16 +12,16 @@ export const createUserZodSchema = z.object({
     .max(100, { message: "Email cannot exceed 100 characters." }),
   password: z
     .string({ message: "Password must be string" })
-    .min(8, { message: " Password must be at least 8 characters long." })
-    .regex(/^(?=.*[A-Z])/, {
-      message: "Password must contain at least 1 uppercase letter.",
-    })
-    .regex(/^(?=.*[!@#$%^&*])/, {
-      message: "Password must contain at least 1 special character.",
-    })
-    .regex(/^(?=.*\d)/, {
-      message: "Password must contain at least 1 number.",
-    }),
+    .min(8, { message: " Password must be at least 8 characters long." }),
+  // .regex(/^(?=.*[A-Z])/, {
+  //   message: "Password must contain at least 1 uppercase letter.",
+  // })
+  // .regex(/^(?=.*[!@#$%^&*])/, {
+  //   message: "Password must contain at least 1 special character.",
+  // })
+  // .regex(/^(?=.*\d)/, {
+  //   message: "Password must contain at least 1 number.",
+  // }),
   phone: z
     .string({ message: "Phone must be string" })
     .regex(/^(?:\+8801|8801|01)[3-9][0-9]{8}$/, {
@@ -45,16 +45,17 @@ export const updateUserZodSchema = z.object({
   password: z
     .string({ message: "Password must be string" })
     .min(8, { message: " Password must be at least 8 characters long." })
-    .regex(/^(?=.*[A-Z])/, {
-      message: "Password must contain at least 1 uppercase letter.",
-    })
-    .regex(/^(?=.*[!@#$%^&*])/, {
-      message: "Password must contain at least 1 special character.",
-    })
-    .regex(/^(?=.*\d)/, {
-      message: "Password must contain at least 1 number.",
-    })
     .optional(),
+  // .regex(/^(?=.*[A-Z])/, {
+  //   message: "Password must contain at least 1 uppercase letter.",
+  // })
+  // .regex(/^(?=.*[!@#$%^&*])/, {
+  //   message: "Password must contain at least 1 special character.",
+  // })
+  // .regex(/^(?=.*\d)/, {
+  //   message: "Password must contain at least 1 number.",
+  // })
+
   phone: z
     .string({ message: "Phone must be string" })
     .regex(/^(?:\+8801|8801|01)[3-9][0-9]{8}$/, {

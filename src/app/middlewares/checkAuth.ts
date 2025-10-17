@@ -1,17 +1,17 @@
-import  httpStatus  from 'http-status-codes';
+import httpStatus from "http-status-codes";
 import { NextFunction, Request, Response } from "express";
 import { JwtPayload } from "jsonwebtoken";
-import AppError from '../helpers/AppError';
-import { verifyToken } from '../utils/jwt';
-import { envVars } from '../config/env';
-import { User } from '../api/v1/user/user.model';
-import { UserStatus } from '../api/v1/user/user.interface';
+import AppError from "../helpers/AppError";
+import { verifyToken } from "../utils/jwt";
+import { envVars } from "../config/env";
+import { User } from "../api/v1/user/user.model";
+import { UserStatus } from "../api/v1/user/user.interface";
 
 export const checkAuth =
   (...authRoles: string[]) =>
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const accessToken = req.headers.authorization;
+      const accessToken = req.headers.authorization || req.cookies.accessToken;
       if (!accessToken) {
         throw new AppError(401, "No token received, please login first");
       }
