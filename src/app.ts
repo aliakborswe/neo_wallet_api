@@ -6,7 +6,12 @@ import { globalErrorHandler } from "./app/middlewares/globalErrorHandler";
 import notFound from "./app/middlewares/notFound";
 
 const app = express();
-app.use(cors({ origin: "http://localhost:3000", credentials: true }));
+app.use(
+  cors({
+    origin: ["http://localhost:3000", "https://neo-wallet-client.netlify.app/"],
+    credentials: true,
+  })
+);
 app.use(express.json());
 app.use(cookieParser());
 
