@@ -169,8 +169,8 @@ const withdrawMoneyService = async (
 const sendMoneyService = async (
   user: JwtPayload,
   amount: number,
-  description: string,
-  receiverEmail: string
+  receiverEmail: string,
+  description?: string
 ) => {
   const userId = user.userId as string;
   const session = await mongoose.startSession();
@@ -408,8 +408,8 @@ const cashInFromAgent = async (
 const cashOut = async (
   user: JwtPayload,
   amount: number,
-  description: string,
-  receiverEmail: string
+  receiverEmail: string,
+  description?: string
 ) => {
   const userId = user.userId as string;
   const session = await mongoose.startSession();
