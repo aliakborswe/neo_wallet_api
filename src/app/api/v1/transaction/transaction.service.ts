@@ -288,11 +288,11 @@ const sendMoneyService = async (
 };
 
 // cash-in from agent
-const cashInFromAgent = async (
+const cashIn = async (
   user: JwtPayload,
   amount: number,
-  description: string,
-  receiverEmail: string
+  receiverEmail: string,
+  description?: string
 ) => {
   const userId = user.userId as string;
   const session = await mongoose.startSession();
@@ -610,7 +610,7 @@ export const TransactionService = {
   addMoneyService,
   withdrawMoneyService,
   sendMoneyService,
-  cashInFromAgent,
+  cashIn,
   cashOut,
   getAllTransaction,
   getMyAllTransaction,

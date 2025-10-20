@@ -7,7 +7,6 @@ import httpStatus from "http-status-codes";
 // add money controller
 const addMoney = catchAsync(async (req: Request, res: Response) => {
   const { amount, paymentMethod, description } = req.body;
-  console.log(req.body);
 
   const result = await TransactionService.addMoneyService(
     req.user,
@@ -50,8 +49,8 @@ const sendMoney = catchAsync(async (req: Request, res: Response) => {
   const result = await TransactionService.sendMoneyService(
     req.user,
     amount,
-    description,
-    receiverEmail
+    receiverEmail,
+    description
   );
 
   sendResponse(res, {
@@ -66,11 +65,12 @@ const sendMoney = catchAsync(async (req: Request, res: Response) => {
 const cashInFromAgent = catchAsync(async (req: Request, res: Response) => {
   const { amount, receiverEmail, description } = req.body;
 
-  const result = await TransactionService.cashInFromAgent(
+
+  const result = await TransactionService.cashIn(
     req.user,
     amount,
-    description,
-    receiverEmail
+    receiverEmail,
+    description
   );
 
   sendResponse(res, {
