@@ -78,9 +78,11 @@ const getAllAgents = catchAsync(
 // Approved or Suspend agent status
 const agentApprovalStatus = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
+    const { agentId, approvalStatus } = req.body;
+
     const updatedUser = await UserServices.agentApprovalStatusService(
-      req.body.agentId,
-      req.body.approvalStatus
+      agentId,
+      approvalStatus
     );
     sendResponse(res, {
       statusCode: httpStatus.OK,
@@ -91,12 +93,31 @@ const agentApprovalStatus = catchAsync(
   }
 );
 
+// user block unblock
+const userBlockUnblock = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { _id, status } = req.body;
+    const payload = {
+      _id,
+      userStatus: status,
+    };
+    const updatedUser = await UserServices.userBlockUnblock(payload);
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "User status updated successfully",
+      data: updatedUser,
+    });
+  }
+);
+
 // set Agent Transaction fee
 const agentTransactionFee = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
+    const { agentId, transactionFee } = req.body;
     const updatedUser = await UserServices.setAgentTxnFee(
-      req.body.agentId,
-      req.body.transactionFee
+      agentId,
+      transactionFee
     );
     sendResponse(res, {
       statusCode: httpStatus.OK,
@@ -114,5 +135,6 @@ export const userControllers = {
   updateUserInfo,
   agentApprovalStatus,
   getAllAgents,
+  userBlockUnblock,
   agentTransactionFee,
 };

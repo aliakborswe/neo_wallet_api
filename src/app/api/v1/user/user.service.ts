@@ -145,17 +145,17 @@ const updateUserInfo = async (
 // for agent
 // agent approval status
 const agentApprovalStatusService = async (
-  _id: string,
+  agentId: string,
   approvalStatus: Partial<AgentStatus>
 ) => {
-  if (!_id || !approvalStatus) {
+  if (!agentId || !approvalStatus) {
     throw new AppError(
       httpStatus.BAD_REQUEST,
       "Agent id and status are required"
     );
   }
 
-  const agent = await User.findOne({ _id });
+  const agent = await User.findOne({ _id: agentId });
   if (!agent || agent.role !== Role.AGENT) {
     throw new AppError(httpStatus.NOT_FOUND, "Agent not found");
   }
@@ -175,15 +175,41 @@ const agentApprovalStatusService = async (
   return agent;
 };
 
-const setAgentTxnFee = async (_id: string, transactionFee: number) => {
-  if (!_id || !transactionFee) {
+// User block unblock
+const userBlockUnblock = async (payload: Partial<IUser>) => {
+  const { _id, userStatus } = payload;
+
+  if (!_id || !userStatus) {
+    throw new AppError(
+      httpStatus.NOT_FOUND,
+      "user _id and status are required"
+    );
+  }
+
+  const user = await User.findOne({ _id });
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, "user not found");
+  }
+
+  // If user already has the same status, don’t update
+  if (user.userStatus === userStatus) {
+    return user;
+  }
+
+  user.userStatus = userStatus;
+  await user.save();
+  return user;
+};
+
+const setAgentTxnFee = async (agentId: string, transactionFee: number) => {
+  if (!agentId || !transactionFee) {
     throw new AppError(
       httpStatus.BAD_REQUEST,
       "Agent id and Transaction fee are required"
     );
   }
 
-  const agent = await User.findOne({ _id });
+  const agent = await User.findOne({ _id: agentId });
   if (!agent || agent.role !== Role.AGENT) {
     throw new AppError(httpStatus.NOT_FOUND, "Agent not found");
   }
@@ -205,5 +231,6 @@ export const UserServices = {
   updateUserInfo,
   agentApprovalStatusService,
   getAllAgents,
+  userBlockUnblock,
   setAgentTxnFee,
 };

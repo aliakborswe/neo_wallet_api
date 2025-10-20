@@ -14,7 +14,7 @@ const walletBlockUnblock = async (payload: Partial<IWallet>) => {
     );
   }
 
-  const wallet = await Wallet.findOne({ _id });
+  const wallet = await Wallet.findOne({ userId:_id });
   if (!wallet) {
     throw new AppError(httpStatus.NOT_FOUND, "Wallet not found");
   }

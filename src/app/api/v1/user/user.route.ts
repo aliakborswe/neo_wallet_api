@@ -39,6 +39,7 @@ router.patch(
   checkAuth(Role.ADMIN),
   userControllers.agentApprovalStatus
 );
+router.patch("/status", checkAuth(Role.ADMIN), userControllers.userBlockUnblock);
 router.patch(
   "/agent-txnfee",
   checkAuth(Role.ADMIN),
