@@ -70,19 +70,21 @@ const resetPassword = catchAsync(
 
 // user logout
 
-const isProduction = envVars.NODE_ENV === "production";
+// const isProduction = envVars.NODE_ENV === "production";
 const logout = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     res.clearCookie("accessToken", {
       httpOnly: true,
-      secure: isProduction,
-      sameSite: isProduction ? "none" : "lax",
+      secure: true,
+      sameSite: "none",
+      path: "/",
     });
 
     res.clearCookie("refreshToken", {
       httpOnly: true,
-      secure: isProduction,
-      sameSite: isProduction ? "none" : "lax",
+      secure: true,
+      sameSite: "none",
+      path: "/",
     });
 
     sendResponse(res, {

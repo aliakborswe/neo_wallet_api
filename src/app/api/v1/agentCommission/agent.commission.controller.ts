@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { NextFunction, Request, Response } from "express";
 import { catchAsync } from "../../../utils/catchAsync";
-import httpStatus from 'http-status-codes'
+import httpStatus from "http-status-codes";
 import { sendResponse } from "../../../utils/sendResponse";
 import { AgentCommissionHistory } from "./agent.commission.service";
 
@@ -16,11 +16,8 @@ const myCommissionHistory = catchAsync(
       message: "All Commission Retrieved successfully",
       data: result.data,
     });
-
-
   }
 );
-
 
 export const commissionController = {
   myCommissionHistory,
